@@ -8,26 +8,18 @@ git-summary summarizes the status of all cloned git repositories founds within a
 
 * Linux
 * MacOS
-* Cygwin
+* Cygwin/Windows Busybox/MinGW
 * SunOS
 * Alpine based containers on Google Cloud Platform - Container Optimised OS (Chromium OS)
 
 ## Requirements
 
-### Linux
-* `sudo apt-get install gawk`
-
 ### MacOS
 * `brew install coreutils`
 
-### Alpine based containers on Google Cloud Platform (Chromium OS)
-* `apk add gawk findutils`
-
-> xargs in Chromium OS does not support -L option, findutils puts an xargs with support for -L
-
 ## Installation (on Linux-based machines)
 
-Clone this repo somewhere and alias the script by adding this line to `~\.bashrc` (modify `$PATH` to point to the location of the cloned repo on your machine):
+Clone this repo somewhere and alias the script by adding this line to your shell's rc file such as `~/.profile`, `~/.bashrc` or `~/.zshrc` (modify `$PATH` to point to the location of the cloned repo on your machine):
 
 ```
 alias git-summary='<PATH>/git-summary/git-summary'
