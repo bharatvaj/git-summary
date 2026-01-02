@@ -93,13 +93,13 @@ git_summary() {
 
     # Use provided path, or default to pwd.
     # Here we also decide if we want relative or full path names printouts.
-    local target=$(${readlink_cmd} -f ${1:-$PWD})
+    local target="$(${readlink_cmd} -f ${1:-$PWD})"
     if [ $full_path -eq 0 ] && command -v realpath >/dev/null; then
-	local rtarget=$(get_relative_path $target)
+	local rtarget="$(get_relative_path $target)"
     else
-	local rtarget=$target
+	local rtarget="$target"
     fi
-    local repos=$(list_repos $rtarget $deeplookup)
+    local repos="$(list_repos $rtarget $deeplookup)"
 
     if [ -z "$repos" ]; then
     	exit
@@ -122,17 +122,16 @@ git_summary() {
     
     local branches="$(printf '%s' "${repos}" | xargs -I {} cut -d/ -f3- '{}')"
     local longest_branch_name=$(max_len "$branches")
-    local longest_branch_name=$(( $longest_branch_name < $header_space_branch ? $header_space_branch : $longest_branch_name ))  # Factor in the header
+    longest_branch_name=$(( $longest_branch_name < $header_space_branch ? $header_space_branch : $longest_branch_name ))  # Factor in the header
+    local space_branch=$longest_branch_name # If we don't have tput, allow full width
     
     if command -v tput >/dev/null && eval 'tput cols' >/dev/null 2>&1;
     then
 	# If we have tput, adapt to terminal
 	local TERM_COLUMNS=$(tput cols)
-	local space_branch=$(( $TERM_COLUMNS - $space_repo - $header_space_state - 4))  # The 4 is the spaces between columns
-	local space_branch=$(( $space_branch < $header_space_branch ? $header_space_branch : $space_branch ))
-	local space_branch=$(( $space_branch > $longest_branch_name ? $longest_branch_name : $space_branch ))  # If this is commented then prompt will be full terminal width
-    else
-	local space_branch=$longest_branch_name # If we don't have tput, allow full width
+	space_branch=$(( $TERM_COLUMNS - $space_repo - $header_space_state - 4))  # The 4 is the spaces between columns
+	space_branch=$(( $space_branch < $header_space_branch ? $header_space_branch : $space_branch ))
+	space_branch=$(( $space_branch > $longest_branch_name ? $longest_branch_name : $space_branch ))  # If this is commented then prompt will be full terminal width
     fi
 
     local template="$(printf "%%b%%-%ds  %%-%d.%ds  %%-%ds" $space_repo $space_branch $space_branch $header_space_state)" # template that truncates branch names to fit terminal width
@@ -178,12 +177,6 @@ detect_OS() {
                 Chromium\ OS)
                     dirname_cmd="dirname_zero" ;;
             esac ;;
-        Cygwin) ;;
-        Windows_NT|MINGW64_NT-*) ;;
-        *)
-            echo "Oups, I cannot identify your current OS."
-            echo "Please open a ticket or a pull request so we can add your OS to the list of supported systems."
-            exit 1 ;;
     esac
 
 }
