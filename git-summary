@@ -148,11 +148,11 @@ git_summary() {
         branch=$(printf "%s" "$branches" | sed -n "${repo_count}p")
         if [ $sort -eq 0 ] ; then
          summarize_one_git_repo "$repo" "$branch" "$template" "$local_only" "$quiet" >&1 &  # parallelized - FIFO stdout
-         wait
         else
          summarize_one_git_repo "$repo" "$branch" "$template" "$local_only" "$quiet" >&1  # sequential - sorted stdout
         fi
     done
+    wait
 
     if [ $quiet -eq 1 ]; then
         echo "Checked ${repo_count} repositories."
@@ -189,7 +189,7 @@ dirname_zero(){
 }
 
 detect_Git4Windows() {
-    if [ "$OS" = "Cygwin" ]; then case "$(git --version)" in
+    if [ "${OS#CYGWIN}" != "$OS" ]; then case "$(git --version)" in
         *windows*) GIT4WINDOWS=0 ;;
     esac
     fi
@@ -237,13 +237,13 @@ summarize_one_git_repo () {
 
     ### Check remote state
     local rstate=""
-    local has_upstream=$(gitC "$f"rev-list --count @{u}.. 2>/dev/null)
+    local has_upstream=$(gitC "$f" rev-list --count '@{u}..' 2>/dev/null)
     if [ ${has_upstream:=0} -ne 0 ] ; then
         if [ $local_only -eq 0 ] ; then
             gitC "$f" fetch -q & >/dev/null
         fi
         # Unpulled and unpushed on *current* branch
-        local unpulled="$(gitC "$f" rev-list --count ..@{u} 2>/dev/null)"
+        local unpulled="$(gitC "$f" rev-list --count '..@{u}' 2>/dev/null)"
         local unpushed="$has_upstream"
 
         if [ ${unpulled:=0} -ne 0 ]; then
